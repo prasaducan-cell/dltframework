@@ -41,9 +41,7 @@ resources:
           notebook_task:
             notebook_path: ./ingestion.ipynb
             source: WORKSPACE
-          
-          # Use serverless compute instead of new_cluster
-          
+      
       schedule:
         quartz_cron_expression: "0 0 0 * * ?" # Daily at midnight
         timezone_id: "UTC"
