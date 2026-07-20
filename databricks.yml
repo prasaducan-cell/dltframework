@@ -1,0 +1,68 @@
+# Declarative Automation Bundle (DAB) configuration
+bundle:
+  name: dltframework
+
+# Include configuration
+include:
+  - resources/*.yml
+
+# Workspace configuration
+workspace:
+  host: https://dbc-ce550af6-f726.cloud.databricks.com
+
+# Variables
+variables:
+  catalog:
+    description: Unity Catalog name
+    default: main
+  
+  schema:
+    description: Schema name
+    default: default
+
+# Targets for different environments
+targets:
+  # Development target
+  dev:
+    mode: development
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/dev
+    
+  # Production target
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/prod
+    
+resources:
+  jobs:
+    ingestion_job:
+      name: "[${bundle.target}] Ingestion Job"
+      
+      tasks:
+        - task_key: run_ingestion
+          notebook_task:
+            notebook_path: ./ingestion.ipynb
+            source: WORKSPACE
+          
+          new_cluster:
+            num_workers: 1
+            spark_version: 13.3.x-scala2.12
+            node_type_id: i3.xlarge
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: local[*]
+            custom_tags:
+              ResourceClass: SingleNode
+          
+      schedule:
+        quartz_cron_expression: "0 0 0 * * ?" # Daily at midnight
+        timezone_id: "UTC"
+        pause_status: PAUSED
+      
+      max_concurrent_runs: 1
+      
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
