@@ -2,10 +2,6 @@
 bundle:
   name: dltframework
 
-# Include configuration
-include:
-  - resources/*.yml
-
 # Workspace configuration
 workspace:
   host: https://dbc-ce550af6-f726.cloud.databricks.com
@@ -46,15 +42,7 @@ resources:
             notebook_path: ./ingestion.ipynb
             source: WORKSPACE
           
-          new_cluster:
-            num_workers: 1
-            spark_version: 13.3.x-scala2.12
-            node_type_id: i3.xlarge
-            spark_conf:
-              spark.databricks.cluster.profile: singleNode
-              spark.master: local[*]
-            custom_tags:
-              ResourceClass: SingleNode
+          # Use serverless compute instead of new_cluster
           
       schedule:
         quartz_cron_expression: "0 0 0 * * ?" # Daily at midnight
