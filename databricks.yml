@@ -24,6 +24,8 @@ targets:
     default: true
     workspace:
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/dev
+    presets:
+      source_linked_deployment: false
     
   # Production target
   prod:
@@ -41,6 +43,20 @@ resources:
           notebook_task:
             notebook_path: ./ingestion.ipynb
             source: WORKSPACE
+          job_cluster_key: serverless_cluster
+      
+      job_clusters:
+        - job_cluster_key: serverless_cluster
+          new_cluster:
+            spark_version: "15.4.x-scala2.12"
+            node_type_id: "i3.xlarge"
+            num_workers: 0
+            spark_conf:
+              spark.databricks.cluster.profile: "singleNode"
+              spark.master: "local[*]"
+            custom_tags:
+              ResourceClass: "SingleNode"
+            data_security_mode: "USER_ISOLATION"
       
       schedule:
         quartz_cron_expression: "0 0 0 * * ?" # Daily at midnight
